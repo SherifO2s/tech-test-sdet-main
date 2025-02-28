@@ -7,13 +7,13 @@ on:
     branches: [main, master]
 
 jobs:
-  goodstack-tests:
+  test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        shard: [1/2, 2/2] # Runs GoodStack tests in 2 parallel jobs
+        shard: [1/3, 2/3, 3/3] # Runs 3 parallel jobs
 
     steps:
       - name: Checkout repository
@@ -30,61 +30,22 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Run GoodStack tests in parallel
-        run: npm run test:goodstack -- --shard=${{ matrix.shard }} --workers=2
+      - name: Run Playwright tests in parallel
+        run: npx playwright test newsite/tests --shard=${{ matrix.shard }} --workers=4
 
-      - name: Upload GoodStack test results
+      # Upload test results (useful for debugging failed tests)
+      - name: Upload Playwright test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: goodstack-results-${{ matrix.shard }}
+          name: playwright-results-${{ matrix.shard }}
           path: test-results/
 
-      - name: Upload GoodStack Playwright report
+      # Upload Playwright HTML Report (for debugging in the browser)
+      - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: goodstack-report-${{ matrix.shard }}
-          path: playwright-report/
-          retention-days: 3
-
-  newsite-tests:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        shard: [1/2, 2/2] # Runs NewSite tests in 2 parallel jobs
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      - name: Run NewSite tests in parallel
-        run: npm run test:newsite -- --shard=${{ matrix.shard }} --workers=2
-
-      - name: Upload NewSite test results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: newsite-results-${{ matrix.shard }}
-          path: test-results/
-
-      - name: Upload NewSite Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: newsite-report-${{ matrix.shard }}
+          name: playwright-report
           path: playwright-report/
           retention-days: 3
