@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        shard: [1/3, 2/3, 3/3]  # Runs 3 parallel jobs
+        shard: [1/3, 2/3, 3/3] # Runs 3 parallel jobs
 
     steps:
       - name: Checkout repository
@@ -33,7 +33,7 @@ jobs:
       - name: Run Playwright tests in parallel
         run: npx playwright test --shard=${{ matrix.shard }} --workers=4
 
-      # Upload Playwright test results (Unique per shard)
+      # Upload test results (useful for debugging failed tests)
       - name: Upload Playwright test results
         if: failure()
         uses: actions/upload-artifact@v4
@@ -41,11 +41,11 @@ jobs:
           name: playwright-results-${{ matrix.shard }}
           path: test-results/
 
-      # Upload Playwright report (Unique per shard)
+      # Upload Playwright HTML Report (for debugging in the browser)
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report
           path: playwright-report/
           retention-days: 3
