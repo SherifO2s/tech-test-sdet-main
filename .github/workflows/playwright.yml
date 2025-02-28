@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        shard: [1/3, 2/3, 3/3] # Runs 3 parallel jobs
+        shard: [1/2, 2/2] # Runs GoodStack tests in 2 parallel jobs
 
     steps:
       - name: Checkout repository
@@ -31,20 +31,20 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run GoodStack tests in parallel
-        run: npm run test:goodstack -- --shard=${{ matrix.shard }} --workers=4
+        run: npm run test:goodstack -- --shard=${{ matrix.shard }} --workers=2
 
-      - name: Upload Playwright test results
+      - name: Upload GoodStack test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: goodstack-results-${{ matrix.shard }}
           path: test-results/
 
-      - name: Upload Playwright report
+      - name: Upload GoodStack Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: goodstack-report
+          name: goodstack-report-${{ matrix.shard }}
           path: playwright-report/
           retention-days: 3
 
@@ -54,7 +54,7 @@ jobs:
 
     strategy:
       matrix:
-        shard: [1/3, 2/3, 3/3] # Runs 3 parallel jobs
+        shard: [1/2, 2/2] # Runs NewSite tests in 2 parallel jobs
 
     steps:
       - name: Checkout repository
@@ -71,20 +71,20 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Run Newsite tests in parallel
-        run: npm run test:newsite -- --shard=${{ matrix.shard }} --workers=4
+      - name: Run NewSite tests in parallel
+        run: npm run test:newsite -- --shard=${{ matrix.shard }} --workers=2
 
-      - name: Upload Playwright test results
+      - name: Upload NewSite test results
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: newsite-results-${{ matrix.shard }}
           path: test-results/
 
-      - name: Upload Playwright report
+      - name: Upload NewSite Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: newsite-report
+          name: newsite-report-${{ matrix.shard }}
           path: playwright-report/
           retention-days: 3
