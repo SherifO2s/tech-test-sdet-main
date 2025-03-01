@@ -42,10 +42,15 @@ jobs:
           path: test-results/
 
       # Upload Playwright HTML Report (for debugging in the browser)
+      - name: Set sanitized shard name
+        run: echo "SANITIZED_SHARD=$(echo '${{ matrix.shard }}' | sed 's/\//_/g')" >> $GITHUB_ENV
+
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.shard }}
+          name: playwright-report-${{ env.SANITIZED_SHARD }}
           path: playwright-report/
           retention-days: 3
+
+    
